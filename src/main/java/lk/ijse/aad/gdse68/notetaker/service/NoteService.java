@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface NoteService {
     String saveNote(NoteDto noteDto);
-   void updateNote(String noteId,NoteDto noteDto);
+   boolean updateNote(String noteId,NoteDto noteDto);
    void deleteNote(String noteId);
    // NoteDto getNote(String noteId);
     List<NoteDto> getAllNote();
