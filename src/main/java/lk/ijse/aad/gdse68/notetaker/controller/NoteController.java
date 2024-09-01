@@ -35,14 +35,15 @@ public class NoteController {
     }
 
     @PutMapping(value = "/{noteId}",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void updateNote(@PathVariable("noteId") String noteId, @RequestBody NoteDto noteDto){
-        noteService.updateNote(noteId,noteDto);
-    }
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping(value = "/{noteId}")
-    public void deleteNote(@PathVariable ("noteId") String noteId) {
-        noteService.deleteNote(noteId);
-        System.out.println(noteId+ " Deleted");
+    public ResponseEntity<String>  updateNote(@PathVariable("noteId") String noteId, @RequestBody NoteDto noteDto){
+        return noteService.updateNote(noteId,noteDto) ? new ResponseEntity<>(HttpStatus.NO_CONTENT) :new  ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+//    restfull widiyt karanne
+    @DeleteMapping(value = "/{noteId}")
+//    responsee entity is object using spring
+    public ResponseEntity<String> deleteNote(@PathVariable ("noteId") String noteId) {
+       return noteService.deleteNote(noteId) ? new ResponseEntity<>(HttpStatus.NO_CONTENT) :new  ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+    }
     }
