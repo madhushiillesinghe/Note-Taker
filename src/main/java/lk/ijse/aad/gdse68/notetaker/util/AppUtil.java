@@ -12,5 +12,8 @@ public class AppUtil {
     public static LocalDateTime getCurrentDateTime() {
         return LocalDateTime.now();
     }
+    public static String createUserId(){
+    return  UUID.randomUUID().toString();
+    }
 
 }
