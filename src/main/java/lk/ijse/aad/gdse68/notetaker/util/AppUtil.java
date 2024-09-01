@@ -3,6 +3,7 @@ package lk.ijse.aad.gdse68.notetaker.util;
 
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.UUID;
 public class AppUtil {
 
@@ -13,7 +14,11 @@ public class AppUtil {
         return LocalDateTime.now();
     }
     public static String createUserId(){
-    return  UUID.randomUUID().toString();
+    return "User"+ UUID.randomUUID().toString();
     }
-
+//    encode-
+//    decode-
+    public static String toBase64Profilepic(String profilepic){
+        return Base64.getEncoder().encodeToString(profilepic.getBytes());
+    }
 }
