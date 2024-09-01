@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import static org.antlr.v4.runtime.tree.xpath.XPath.findAll;
+
 @Service
 @Transactional
 public class NoteServiceImpl implements NoteService {
@@ -29,6 +31,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public boolean updateNote(String noteId, NoteDto incomenoteDto) {
+<<<<<<< HEAD
         Optional<NoteEntity> updateById=noteDao.findById(noteId);
         if(!updateById.isPresent()){
             return false;
@@ -49,6 +52,14 @@ public class NoteServiceImpl implements NoteService {
         }
         return false;
 
+=======
+        return false;
+    }
+
+    @Override
+    public void deleteNote(String noteId) {
+    noteDao.deleteById(noteId);
+>>>>>>> origin/master
     }
     @Override
     public NoteDto getSelectNote(String noteId) {
