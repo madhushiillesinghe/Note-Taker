@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import static org.antlr.v4.runtime.tree.xpath.XPath.findAll;
+
 @Service
 @Transactional
 public class NoteServiceImpl implements NoteService {
@@ -30,21 +32,21 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public boolean updateNote(String noteId, NoteDto incomenoteDto) {
-    return false;
+        return false;
     }
 
     @Override
     public void deleteNote(String noteId) {
-
+    noteDao.deleteById(noteId);
     }
     @Override
     public NoteDto getSelectNote(String noteId) {
-    return null;
+    return mapping.convertToDTO(noteDao.getReferenceById(noteId));
     }
 
     @Override
     public List<NoteDto> getAllNote() {
-        return null;
+       return  mapping.convertToDTO(noteDao.findAll());
     }
 
 }

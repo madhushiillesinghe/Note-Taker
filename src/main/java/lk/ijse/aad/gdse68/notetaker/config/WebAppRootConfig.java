@@ -19,13 +19,15 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.sql.DataSource;
 
-//db and util handling using this
+//presentation layer eke nathi anith layer handling this
+//seperation of consurn ()relevent detail included relevent class
 
 @Configuration
 @ComponentScan(basePackages = "lk.ijse.aad.gdse68.notetaker")
-@EnableWebMvc
 @EnableJpaRepositories
 @EnableTransactionManagement
+
+//@webmvc is not using this clsss beacausee is using presentation layer interact config class
 public class WebAppRootConfig {
     @Bean
     public ModelMapper modelMapper() {

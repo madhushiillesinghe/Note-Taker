@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Component
@@ -24,4 +25,5 @@ public class Mapping {
     public List<NoteDto> convertToDTO(List<NoteEntity> notes){
         return modelMapper.map(notes,List.class);
     }
+
 }
