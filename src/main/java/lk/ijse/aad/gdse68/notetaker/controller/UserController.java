@@ -1,8 +1,10 @@
 package lk.ijse.aad.gdse68.notetaker.controller;
 
+import lk.ijse.aad.gdse68.notetaker.customObj.UserResponse;
 import lk.ijse.aad.gdse68.notetaker.dto.NoteDto;
 import lk.ijse.aad.gdse68.notetaker.dto.UserDTO;
 import lk.ijse.aad.gdse68.notetaker.entity.NoteEntity;
+import lk.ijse.aad.gdse68.notetaker.exception.UserNotFoundException;
 import lk.ijse.aad.gdse68.notetaker.service.UserService;
 import lk.ijse.aad.gdse68.notetaker.util.AppUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,29 +37,47 @@ public class UserController {
         builduserDTO.setEmail(email);
         builduserDTO.setPassword(password);
         builduserDTO.setProfilepic(base64ProfilePic);
-//        send to the service layer
-        return new ResponseEntity<>(userService.saveUser(builduserDTO), HttpStatus.CREATED);
+        var savestatus=userService.saveUser(builduserDTO);
+        if(savestatus.contains("User saved in service layer")){
+            return new ResponseEntity<>( HttpStatus.CREATED);
+        }
+            return  new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @PutMapping(value = "/{userId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String>  updateUser(@PathVariable("userId") String userId, @RequestPart("firstName") String firstName,
+    public ResponseEntity<Void>  updateUser(@PathVariable("userId") String userId,
+                                              @RequestPart("firstName") String firstName,
                                               @RequestPart("lastName") String lastName,
                                               @RequestPart("email") String email,
                                               @RequestPart("password") String password,
                                               @RequestPart("profilepic")String profilepic){
-        String base64ProfilePic= AppUtil.toBase64Profilepic(profilepic);
-
-        UserDTO updateuserDTO=new UserDTO();
-        updateuserDTO.setFirstName(firstName);
-        updateuserDTO.setLastName(lastName);
-        updateuserDTO.setEmail(email);
-        updateuserDTO.setPassword(password);
-        updateuserDTO.setProfilepic(base64ProfilePic);
-        return userService.updateUser(userId, updateuserDTO) ? new ResponseEntity<>(HttpStatus.NO_CONTENT) :new  ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            String base64ProfilePic = AppUtil.toBase64Profilepic(profilepic);
+            UserDTO updateuserDTO = new UserDTO();
+            updateuserDTO.setUserId(userId);
+            updateuserDTO.setFirstName(firstName);
+            updateuserDTO.setLastName(lastName);
+            updateuserDTO.setEmail(email);
+            updateuserDTO.setPassword(password);
+            updateuserDTO.setProfilepic(base64ProfilePic);
+            userService.updateUser(updateuserDTO);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }catch (UserNotFoundException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     @DeleteMapping(value = "/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable ("userId") String userId) {
-        return userService.deleteUser(userId) ? new ResponseEntity<>(HttpStatus.NO_CONTENT) :new  ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        try {
+            userService.deleteUser(userId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
     }
     @GetMapping(value = "/allusers",produces = MediaType.APPLICATION_JSON_VALUE)
@@ -65,7 +85,7 @@ public class UserController {
         return userService.getAllUsers();
     }
     @GetMapping(value = "/{userId}",produces =MediaType.APPLICATION_JSON_VALUE )
-    public UserDTO getUser(@PathVariable("userId") String userId){
-        return userService.getSelectUser(userId);
+    public UserResponse getUser(@PathVariable("userId") String userId){
+        return userService.getSelectUserBYId(userId);
     }
 }

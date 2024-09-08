@@ -5,4 +5,6 @@ import lk.ijse.aad.gdse68.notetaker.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserDao extends JpaRepository<UserEntity, String> {
+
+    UserEntity getUserEntitiesByUserId(String userId);
 }

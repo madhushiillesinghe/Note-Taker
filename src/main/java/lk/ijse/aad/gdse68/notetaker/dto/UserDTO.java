@@ -2,6 +2,7 @@ package lk.ijse.aad.gdse68.notetaker.dto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.OneToMany;
+import lk.ijse.aad.gdse68.notetaker.customObj.UserResponse;
 import lk.ijse.aad.gdse68.notetaker.entity.NoteEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class UserDTO {
+public class UserDTO implements SuperDTO, UserResponse {
     private String userId;
     private String firstName;
     private String lastName;
