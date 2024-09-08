@@ -38,4 +38,34 @@ public class UserController {
 //        send to the service layer
         return new ResponseEntity<>(userService.saveUser(builduserDTO), HttpStatus.CREATED);
     }
+
+    @PutMapping(value = "/{userId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String>  updateUser(@PathVariable("userId") String userId, @RequestPart("firstName") String firstName,
+                                              @RequestPart("lastName") String lastName,
+                                              @RequestPart("email") String email,
+                                              @RequestPart("password") String password,
+                                              @RequestPart("profilepic")String profilepic){
+        String base64ProfilePic= AppUtil.toBase64Profilepic(profilepic);
+
+        UserDTO updateuserDTO=new UserDTO();
+        updateuserDTO.setFirstName(firstName);
+        updateuserDTO.setLastName(lastName);
+        updateuserDTO.setEmail(email);
+        updateuserDTO.setPassword(password);
+        updateuserDTO.setProfilepic(base64ProfilePic);
+        return userService.updateUser(userId, updateuserDTO) ? new ResponseEntity<>(HttpStatus.NO_CONTENT) :new  ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    @DeleteMapping(value = "/{userId}")
+    public ResponseEntity<String> deleteUser(@PathVariable ("userId") String userId) {
+        return userService.deleteUser(userId) ? new ResponseEntity<>(HttpStatus.NO_CONTENT) :new  ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+    }
+    @GetMapping(value = "/allusers",produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<UserDTO> getAllUsers(){
+        return userService.getAllUsers();
+    }
+    @GetMapping(value = "/{userId}",produces =MediaType.APPLICATION_JSON_VALUE )
+    public UserDTO getUser(@PathVariable("userId") String userId){
+        return userService.getSelectUser(userId);
+    }
 }

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 @Transactional
 public class UserServiceImpl implements UserService{
@@ -23,7 +25,6 @@ public class UserServiceImpl implements UserService{
     @Override
     public String saveUser(UserDTO userDTO) {
         userDTO.setUserId(AppUtil.createUserId());
-
         userDao.save(mapping.convertToUserEntity(userDTO));
         return "User saved in service layer";
 
@@ -31,21 +32,35 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public boolean updateUser(String userId, UserDTO userDTO) {
-        return false;
-    }
+        Optional<UserEntity> updateById=userDao.findById(userId);
+        if(!updateById.isPresent()){
+            return false;
+        }else {
+            updateById.get().setEmail(userDTO.getEmail());
+            updateById.get().setPassword(userDTO.getPassword());
+            updateById.get().setFirstName(userDTO.getFirstName());
+            updateById.get().setLastName(userDTO.getLastName());
+            updateById.get().setProfilepic(userDTO.getProfilepic());
+            return true;
+        }    }
 
     @Override
-    public boolean deleteUser(String noteId) {
+    public boolean deleteUser(String userId) {
+        if(userDao.existsById(userId)){
+            userDao.deleteById(userId);
+            return true;
+        }
         return false;
     }
 
     @Override
     public List<UserDTO> getAllUsers() {
-        return null;
+
+        return  mapping.convertToUserDTO(userDao.findAll());
     }
 
     @Override
-    public UserDTO getSelectUser(String noteId) {
-        return null;
+    public UserDTO getSelectUser(String userId) {
+        return mapping.convertToUserDTO(userDao.getReferenceById(userId));
     }
 }

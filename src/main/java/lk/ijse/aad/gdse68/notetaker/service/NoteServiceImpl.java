@@ -26,7 +26,6 @@ public class NoteServiceImpl implements NoteService {
         noteDao.save(noteEntity);
         return "Note saved in service layer";
     }
-
     @Override
     public boolean updateNote(String noteId, NoteDto incomenoteDto) {
         Optional<NoteEntity> updateById=noteDao.findById(noteId);
@@ -48,7 +47,6 @@ public class NoteServiceImpl implements NoteService {
             return true;
         }
         return false;
-
     }
     @Override
     public NoteDto getSelectNote(String noteId) {
