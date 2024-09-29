@@ -8,6 +8,7 @@ import lk.ijse.aad.gdse68.notetaker.dao.UserDao;
 import lk.ijse.aad.gdse68.notetaker.dto.UserDTO;
 import lk.ijse.aad.gdse68.notetaker.entity.NoteEntity;
 import lk.ijse.aad.gdse68.notetaker.entity.UserEntity;
+import lk.ijse.aad.gdse68.notetaker.exception.DataPersistFailedException;
 import lk.ijse.aad.gdse68.notetaker.exception.UserNotFoundException;
 import lk.ijse.aad.gdse68.notetaker.util.AppUtil;
 import lk.ijse.aad.gdse68.notetaker.util.Mapping;
@@ -26,15 +27,12 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private Mapping mapping;
     @Override
-    public String saveUser(UserDTO userDTO) {
+    public void saveUser(UserDTO userDTO) {
         userDTO.setUserId(AppUtil.createUserId());
         UserEntity usersave= userDao.save(mapping.convertToUserEntity(userDTO));
-        if(usersave != null && usersave.getUserId() != null){
-            return "User saved in service layer";
-
-        }
-        return "User saved fail";
-    }
+        if(usersave == null && usersave.getUserId() == null ) {
+            throw new DataPersistFailedException("Cannot data saved");
+        }    }
     @Override
     public boolean updateUser( UserDTO userDTO) {
         //controlling the null point exception

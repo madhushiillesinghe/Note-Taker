@@ -1,6 +1,7 @@
 package lk.ijse.aad.gdse68.notetaker.controller;
 
 
+import lk.ijse.aad.gdse68.notetaker.exception.NoteNotFound;
 import lk.ijse.aad.gdse68.notetaker.service.NoteService;
 import lk.ijse.aad.gdse68.notetaker.dto.NoteDto;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,7 @@ public class NoteController {
     @Autowired
     private final NoteService noteService;
 
-    @GetMapping("/health")
-    public String healthCheck(){
-        return "note taker is running";
-    }
+
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createNote(@RequestBody NoteDto note){
         var  saveData=noteService.saveNote(note);
@@ -39,8 +37,15 @@ public class NoteController {
     }
 
     @PutMapping(value = "/{noteId}",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String>  updateNote(@PathVariable("noteId") String noteId, @RequestBody NoteDto noteDto){
-        return noteService.updateNote(noteId,noteDto) ? new ResponseEntity<>(HttpStatus.NO_CONTENT) :new  ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<Void> updateNote(@PathVariable ("noteId") String noteId, @RequestBody NoteDto note) {
+        try {
+            noteService.updateNote(noteId, note);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (NoteNotFound e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 //    restfull widiyt karanne

@@ -13,4 +13,5 @@ public class NoteDto {
     private String noteDecs;
     private String priorityLevel;
     private String createDate;
+    private String userId;
 }

@@ -4,6 +4,7 @@ import lk.ijse.aad.gdse68.notetaker.customObj.UserResponse;
 import lk.ijse.aad.gdse68.notetaker.dto.NoteDto;
 import lk.ijse.aad.gdse68.notetaker.dto.UserDTO;
 import lk.ijse.aad.gdse68.notetaker.entity.NoteEntity;
+import lk.ijse.aad.gdse68.notetaker.exception.DataPersistFailedException;
 import lk.ijse.aad.gdse68.notetaker.exception.UserNotFoundException;
 import lk.ijse.aad.gdse68.notetaker.service.UserService;
 import lk.ijse.aad.gdse68.notetaker.util.AppUtil;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,22 +28,25 @@ public class UserController {
         @RequestPart("lastName") String lastName,
         @RequestPart("email") String email,
         @RequestPart("password") String password,
-        @RequestPart("profilepic")String profilepic){
+        @RequestPart("profilepic") MultipartFile profilepic){
 
-        //Handle profile picture
-        String base64ProfilePic= AppUtil.toBase64Profilepic(profilepic);
-        //build the user object
-        UserDTO builduserDTO=new UserDTO();
-        builduserDTO.setFirstName(firstName);
-        builduserDTO.setLastName(lastName);
-        builduserDTO.setEmail(email);
-        builduserDTO.setPassword(password);
-        builduserDTO.setProfilepic(base64ProfilePic);
-        var savestatus=userService.saveUser(builduserDTO);
-        if(savestatus.contains("User saved in service layer")){
-            return new ResponseEntity<>( HttpStatus.CREATED);
+        try {
+            String base64ProfilePic = AppUtil.toBase64Profilepic(profilepic);
+            // build the user object
+            UserDTO buildUserDTO = new UserDTO();
+            buildUserDTO.setFirstName(firstName);
+            buildUserDTO.setLastName(lastName);
+            buildUserDTO.setEmail(email);
+            buildUserDTO.setPassword(password);
+            buildUserDTO.setProfilepic(base64ProfilePic);
+            //send to the service layer
+            userService.saveUser(buildUserDTO);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }catch (DataPersistFailedException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-            return  new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @PutMapping(value = "/{userId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -50,8 +55,9 @@ public class UserController {
                                               @RequestPart("lastName") String lastName,
                                               @RequestPart("email") String email,
                                               @RequestPart("password") String password,
-                                              @RequestPart("profilepic")String profilepic){
+                                              @RequestPart("profilepic")MultipartFile profilepic){
         try {
+
             String base64ProfilePic = AppUtil.toBase64Profilepic(profilepic);
             UserDTO updateuserDTO = new UserDTO();
             updateuserDTO.setUserId(userId);
