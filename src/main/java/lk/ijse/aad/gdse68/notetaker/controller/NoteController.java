@@ -25,11 +25,12 @@ public class NoteController {
 
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> createNote(@RequestBody NoteDto note){
+    public ResponseEntity<Void> createNote(@RequestBody NoteDto note) {
         if (note == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }else {
             try {
+                System.out.println(note);
                 noteService.saveNote(note);
                 return new ResponseEntity<>(HttpStatus.CREATED);
             }catch (DataPersistFailedException e){
@@ -38,7 +39,6 @@ public class NoteController {
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-
     }
     @GetMapping(value = "/allnotes",produces = MediaType.APPLICATION_JSON_VALUE)
     public List<NoteDto> getAllNotes(){
@@ -49,14 +49,18 @@ public class NoteController {
         return noteService.getSelectNote(noteId);
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(value = "/{noteId}",consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateNote(@PathVariable ("noteId") String noteId, @RequestBody NoteDto note) {
         try {
+            if (note == null && (noteId == null || note.equals(""))){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             noteService.updateNote(noteId, note);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (NoteNotFound e) {
+        }catch (NoteNotFound e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
+        }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -64,8 +68,17 @@ public class NoteController {
 //    restfull widiyt karanne
     @DeleteMapping(value = "/{noteId}")
 //    responsee entity is object using spring
-    public ResponseEntity<String> deleteNote(@PathVariable ("noteId") String noteId) {
-       return noteService.deleteNote(noteId) ? new ResponseEntity<>(HttpStatus.NO_CONTENT) :new  ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Void> deleteNote(@PathVariable ("noteId") String noteId) {
+        try{
+            noteService.deleteNote(noteId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        }catch (NoteNotFound e){
+            return new  ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
 
     }
     }

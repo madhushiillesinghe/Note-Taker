@@ -5,7 +5,9 @@ import lk.ijse.aad.gdse68.notetaker.customObj.NoteErrorResponse;
 import lk.ijse.aad.gdse68.notetaker.customObj.NoteResponse;
 import lk.ijse.aad.gdse68.notetaker.dao.NoteDao;
 import lk.ijse.aad.gdse68.notetaker.dto.NoteDto;
+import lk.ijse.aad.gdse68.notetaker.dto.UserDTO;
 import lk.ijse.aad.gdse68.notetaker.entity.NoteEntity;
+import lk.ijse.aad.gdse68.notetaker.entity.UserEntity;
 import lk.ijse.aad.gdse68.notetaker.exception.DataPersistFailedException;
 import lk.ijse.aad.gdse68.notetaker.exception.NoteNotFound;
 import lk.ijse.aad.gdse68.notetaker.util.AppUtil;
@@ -23,39 +25,39 @@ public class NoteServiceImpl implements NoteService {
    private NoteDao noteDao;
     @Autowired
     private Mapping mapping;
+
     @Override
-    public void saveNote(NoteDto noteDto) {
-        noteDto.setNoteId(AppUtil.createNoteId());
-        NoteEntity noteEntity = mapping.convertToEntity(noteDto);
-        var noteSaved=noteDao.save(noteEntity);
-//        noteDao.save(noteEntity);
-//        return "Note saved in service layer";
-        if (noteSaved == null){
-            throw new DataPersistFailedException("can not save note");
+    public void saveNote(NoteDto noteDTO) {
+        noteDTO.setNoteId(AppUtil.createNoteId());
+        var noteEntity = mapping.convertToEntity(noteDTO);
+        var savedNoted = noteDao.save(noteEntity);
+        if(savedNoted == null){
+            throw new DataPersistFailedException("Cannot save note");
         }
 
     }
     @Override
-    public void updateNote(String noteId, NoteDto incomenoteDto) {
-        Optional<NoteEntity> updateById=noteDao.findById(noteId);
-        if(!updateById.isPresent()){
+    public void updateNote(String noteId, NoteDto incomeNoteDTO) {
+        Optional<NoteEntity> tmpNoteEntity= noteDao.findById(noteId);
+        if(!tmpNoteEntity.isPresent()){
             throw new NoteNotFound("Note not found");
         }else {
-            updateById.get().setNoteDecs(incomenoteDto.getNoteDecs());
-            updateById.get().setNoteTitle(incomenoteDto.getNoteTitle());
-            updateById.get().setCreateDate(incomenoteDto.getCreateDate());
-            updateById.get().setPriorityLevel(incomenoteDto.getPriorityLevel());
-
+            tmpNoteEntity.get().setNoteDecs(incomeNoteDTO.getNoteDecs());
+            tmpNoteEntity.get().setNoteTitle(incomeNoteDTO.getNoteTitle());
+            tmpNoteEntity.get().setCreateDate(incomeNoteDTO.getCreateDate());
+            tmpNoteEntity.get().setPriorityLevel(incomeNoteDTO.getPriorityLevel());
         }
     }
 
     @Override
-    public boolean deleteNote(String noteId) {
-        if(noteDao.existsById(noteId)){
+    public void deleteNote(String noteId) {
+        Optional<NoteEntity> findId = noteDao.findById(noteId);
+        if (!findId.isPresent()) {
+            throw new NoteNotFound("Note not found");
+        } else {
             noteDao.deleteById(noteId);
-            return true;
         }
-        return false;
+
     }
     @Override
     public NoteResponse getSelectNote(String noteId) {
