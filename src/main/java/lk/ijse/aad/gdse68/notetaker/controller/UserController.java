@@ -23,7 +23,7 @@ public class UserController {
     @Autowired
     private UserService userService;
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> createUser(
+    public ResponseEntity<Void > createUser(
         @RequestPart("firstName") String firstName,
         @RequestPart("lastName") String lastName,
         @RequestPart("email") String email,

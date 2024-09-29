@@ -1,6 +1,8 @@
 package lk.ijse.aad.gdse68.notetaker.controller;
 
 
+import lk.ijse.aad.gdse68.notetaker.customObj.NoteResponse;
+import lk.ijse.aad.gdse68.notetaker.exception.DataPersistFailedException;
 import lk.ijse.aad.gdse68.notetaker.exception.NoteNotFound;
 import lk.ijse.aad.gdse68.notetaker.service.NoteService;
 import lk.ijse.aad.gdse68.notetaker.dto.NoteDto;
@@ -23,16 +25,27 @@ public class NoteController {
 
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> createNote(@RequestBody NoteDto note){
-        var  saveData=noteService.saveNote(note);
-        return ResponseEntity.ok(saveData);
+    public ResponseEntity<Void> createNote(@RequestBody NoteDto note){
+        if (note == null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }else {
+            try {
+                noteService.saveNote(note);
+                return new ResponseEntity<>(HttpStatus.CREATED);
+            }catch (DataPersistFailedException e){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }catch (Exception e){
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
     }
     @GetMapping(value = "/allnotes",produces = MediaType.APPLICATION_JSON_VALUE)
     public List<NoteDto> getAllNotes(){
         return noteService.getAllNote();
     }
     @GetMapping(value = "/{noteId}",produces =MediaType.APPLICATION_JSON_VALUE )
-    public NoteDto getNote(@PathVariable("noteId") String noteId){
+    public NoteResponse getNote(@PathVariable("noteId") String noteId){
         return noteService.getSelectNote(noteId);
     }
 

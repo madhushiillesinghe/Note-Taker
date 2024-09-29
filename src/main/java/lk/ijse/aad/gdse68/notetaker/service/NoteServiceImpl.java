@@ -1,9 +1,12 @@
 package lk.ijse.aad.gdse68.notetaker.service;
 
 import jakarta.transaction.Transactional;
+import lk.ijse.aad.gdse68.notetaker.customObj.NoteErrorResponse;
+import lk.ijse.aad.gdse68.notetaker.customObj.NoteResponse;
 import lk.ijse.aad.gdse68.notetaker.dao.NoteDao;
 import lk.ijse.aad.gdse68.notetaker.dto.NoteDto;
 import lk.ijse.aad.gdse68.notetaker.entity.NoteEntity;
+import lk.ijse.aad.gdse68.notetaker.exception.DataPersistFailedException;
 import lk.ijse.aad.gdse68.notetaker.exception.NoteNotFound;
 import lk.ijse.aad.gdse68.notetaker.util.AppUtil;
 import lk.ijse.aad.gdse68.notetaker.util.Mapping;
@@ -21,11 +24,16 @@ public class NoteServiceImpl implements NoteService {
     @Autowired
     private Mapping mapping;
     @Override
-    public String saveNote(NoteDto noteDto) {
+    public void saveNote(NoteDto noteDto) {
         noteDto.setNoteId(AppUtil.createNoteId());
         NoteEntity noteEntity = mapping.convertToEntity(noteDto);
-        noteDao.save(noteEntity);
-        return "Note saved in service layer";
+        var noteSaved=noteDao.save(noteEntity);
+//        noteDao.save(noteEntity);
+//        return "Note saved in service layer";
+        if (noteSaved == null){
+            throw new DataPersistFailedException("can not save note");
+        }
+
     }
     @Override
     public void updateNote(String noteId, NoteDto incomenoteDto) {
@@ -50,9 +58,12 @@ public class NoteServiceImpl implements NoteService {
         return false;
     }
     @Override
-    public NoteDto getSelectNote(String noteId) {
-    return mapping.convertToDTO(noteDao.getReferenceById(noteId));
-    }
+    public NoteResponse getSelectNote(String noteId) {
+        if(noteDao.existsById(noteId)){
+            return mapping.convertToDTO(noteDao.getReferenceById(noteId));
+        }else {
+            return new NoteErrorResponse(0,"Note not found");
+        }    }
 
     @Override
     public List<NoteDto> getAllNote() {
